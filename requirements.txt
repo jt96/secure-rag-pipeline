@@ -1,6 +1,7 @@
 langchain
 langchain-community
 langchain-core
+langchain-google-genai
 langchain-huggingface
 langchain-pinecone
 pinecone-client

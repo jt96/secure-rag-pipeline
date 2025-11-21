@@ -1,3 +1,11 @@
+"""
+Database Verification Script
+
+Performs a semantic search query against the Pinecone index to verify
+that data was uploaded correctly and is retrievable.
+
+"""
+
 import os
 import sys
 from ingest import setup_env

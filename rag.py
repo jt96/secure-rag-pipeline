@@ -30,7 +30,7 @@ def get_rag_chain():
         embedding=embeddings,
         index_name=PINECONE_INDEX_NAME)
     
-    retriever = vector_store.as_retriever(search_kwargs={"k": 5})
+    retriever = vector_store.as_retriever(search_kwargs={"k": 3})
 
     llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0)
 
@@ -61,7 +61,7 @@ def main():
         
         if query.lower() in ["exit", "quit", "q"]:
             print("Ending session.")
-            break
+            sys.exit(0)
             
         if not query.strip():
             continue

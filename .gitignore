@@ -8,6 +8,7 @@ env/
 
 # Environment Variables (Security)
 .env
+data/
 
 # IDE Settings
 .vscode/

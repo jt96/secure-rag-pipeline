@@ -38,10 +38,9 @@ def setup_env():
         print(f'PDF folder {DATA_FOLDER}/ does not exist. Folder has been created, please add PDFs.')
         sys.exit(0)
     
+    return DATA_FOLDER
 
-def ingest_docs():
-    DATA_FOLDER = os.getenv("DATA_FOLDER", "data")
-    
+def ingest_docs(DATA_FOLDER):
     PROCESSED_FOLDER = os.path.join(DATA_FOLDER, "processed")
     
     # Create processed folder if it doesn't exist
@@ -136,8 +135,8 @@ def connect_to_cloud(splits):
 
 def main():
     try:
-        setup_env()
-        text_chunks = ingest_docs()
+        data_path = setup_env()
+        text_chunks = ingest_docs(data_path)
         connect_to_cloud(text_chunks)
     except Exception as e:
         print(f"Failed: {e}")

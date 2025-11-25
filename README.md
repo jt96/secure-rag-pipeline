@@ -31,7 +31,7 @@ PINECONE_INDEX_NAME=secure-rag
 ```
 
 ### 2. Prepare Data
-Create a folder named `data` in your project root and add your PDF files.
+Create a folder named `data` in your project root directory and add your PDF files.
 
 ### 3. Run the Application
 

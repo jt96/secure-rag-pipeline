@@ -15,7 +15,7 @@ Environment Variables:
 import os
 import sys
 from dotenv import load_dotenv
-from langchain_community.document_loaders import PyPDFLoader
+from langchain_community.document_loaders import PyPDFDirectoryLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_pinecone import PineconeVectorStore
 from langchain_huggingface import HuggingFaceEmbeddings
@@ -24,17 +24,31 @@ def setup_env():
     print("Loading environment variables...")
     load_dotenv()
     print("Variables loaded.")
+    
+    pdf_directory = "data"
+    
+    # Check for PDF folder, create one if it doesn't exist
+    if os.path.isdir(pdf_directory):
+        if not os.listdir(pdf_directory):
+            print(f'PDF folder {pdf_directory}/ is empty. Please add PDFs.')
+            sys.exit(0)
+    elif not os.path.isdir(pdf_directory):
+        os.makedirs(pdf_directory, exist_ok=True)
+        print(f'PDF folder {pdf_directory}/ does not exist. Folder has been created, please add PDFs.')
+        sys.exit(0)
+        
 
 def ingest_docs():
-    file_path = "sample.pdf"
+    pdf_directory = "data"
 
     # Check if file exists before crashing
-    if not os.path.exists(file_path):
-        print(f"Error: {file_path} not found.")
+    if not os.path.exists(pdf_directory):
+        print(f"Error: Folder {pdf_directory} not found.")
         sys.exit(1)
 
-    loader = PyPDFLoader(file_path)
-    print("Loading PDF...")
+    # Load all PDFs in folder
+    loader = PyPDFDirectoryLoader(pdf_directory)
+    print(f"Loading {len(os.listdir(pdf_directory))} PDFs...")
     docs = loader.load()
 
     # 1000 chars is about 250 words.

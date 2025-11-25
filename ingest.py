@@ -61,7 +61,7 @@ def ingest_docs(data_folder):
 
     # Load all PDFs in folder
     docs = []
-    print(f"Loading {len(pdf_files)} PDFs from '{data_folder}/'...")
+    print(f"Loading {len(pdf_files)} PDFs from '{data_folder}'...")
     for pdf_file in pdf_files:
         file_path = os.path.join(data_folder, pdf_file)
         try:

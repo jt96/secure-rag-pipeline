@@ -26,44 +26,44 @@ def setup_env():
     load_dotenv()
     print("Variables loaded.")
     
-    DATA_FOLDER = os.getenv("DATA_FOLDER", "data")
+    data_folder = os.getenv("DATA_FOLDER", "data")
         
     # Check for PDF folder, create one if it doesn't exist
-    if os.path.isdir(DATA_FOLDER):
-        if not os.listdir(DATA_FOLDER):
-            print(f'PDF folder {DATA_FOLDER}/ is empty. Please add PDFs.')
+    if os.path.isdir(data_folder):
+        if not os.listdir(data_folder):
+            print(f'PDF folder {data_folder}/ is empty. Please add PDFs.')
             sys.exit(0)
-    elif not os.path.isdir(DATA_FOLDER):
-        os.makedirs(DATA_FOLDER, exist_ok=True)
-        print(f'PDF folder {DATA_FOLDER}/ does not exist. Folder has been created, please add PDFs.')
+    elif not os.path.isdir(data_folder):
+        os.makedirs(data_folder, exist_ok=True)
+        print(f'PDF folder {data_folder}/ does not exist. Folder has been created, please add PDFs.')
         sys.exit(0)
     
-    return DATA_FOLDER
+    return data_folder
 
-def ingest_docs(DATA_FOLDER):
-    PROCESSED_FOLDER = os.path.join(DATA_FOLDER, "processed")
+def ingest_docs(data_folder):
+    processed_folder = os.path.join(data_folder, "processed")
     
     # Create processed folder if it doesn't exist
-    if not os.path.exists(PROCESSED_FOLDER):
-        os.makedirs(PROCESSED_FOLDER)
+    if not os.path.exists(processed_folder):
+        os.makedirs(processed_folder)
         
-    files = os.listdir(DATA_FOLDER)
+    files = os.listdir(data_folder)
     pdf_files = [f for f in files if f.lower().endswith(".pdf")]
     
     if not pdf_files:
-        print(f'Warning: No new PDFs found in {DATA_FOLDER}.')
+        print(f'Warning: No new PDFs found in {data_folder}.')
         sys.exit(0)
 
     # Check if file exists before crashing
-    if not os.path.exists(DATA_FOLDER):
-        print(f"Error: Folder {DATA_FOLDER} not found.")
+    if not os.path.exists(data_folder):
+        print(f"Error: Folder {data_folder} not found.")
         sys.exit(1)
 
     # Load all PDFs in folder
     docs = []
-    print(f"Loading {len(pdf_files)} PDFs from '{DATA_FOLDER}/'...")
+    print(f"Loading {len(pdf_files)} PDFs from '{data_folder}/'...")
     for pdf_file in pdf_files:
-        file_path = os.path.join(DATA_FOLDER, pdf_file)
+        file_path = os.path.join(data_folder, pdf_file)
         try:
             loader = PyPDFLoader(file_path)
             docs.extend(loader.load())
@@ -87,13 +87,13 @@ def ingest_docs(DATA_FOLDER):
     print(f"Success! Original Pages: {len(docs)}")
     print(f"Created {len(splits)} vector chunks.")
     
-    print(f"Moving processed files to {PROCESSED_FOLDER}")
+    print(f"Moving processed files to {processed_folder}")
     for file_name in pdf_files:
-        src_path = os.path.join(DATA_FOLDER, file_name)
-        dst_path = os.path.join(PROCESSED_FOLDER, file_name)
+        src_path = os.path.join(data_folder, file_name)
+        dst_path = os.path.join(processed_folder, file_name)
         try:
             shutil.move(src_path, dst_path)
-            print(f"Moved: {file_name} from {DATA_FOLDER} to {PROCESSED_FOLDER}")
+            print(f"Moved: {file_name} from {data_folder} to {processed_folder}")
         except Exception as e:
             print(f"Failed to move {file_name}: {e}")
 

@@ -63,6 +63,25 @@ docker run -it --env-file .env -e RUN_INGEST=true -v ${PWD}/data:/app/data rag-a
 
 ---
 
+## Advanced Configuration
+
+### Custom Data Folder
+If you want to name your local folder something else (e.g., `my_docs`), you must update **both** your `.env` file and the Docker command.
+
+1. **Update .env:**
+   ```env
+   DATA_FOLDER=my_docs
+   ```
+
+2. **Update Docker Command:**
+   You must map your local folder to the **same name** inside the container:
+   ```powershell
+   # Format: -v ${PWD}/[Local_Name]:/app/[Env_Var_Name]
+   docker run -it --env-file .env -v ${PWD}/my_docs:/app/my_docs rag-app
+   ```
+
+---
+
 ## Local Development (No Docker)
 
 1. **Install Dependencies:**

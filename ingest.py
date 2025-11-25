@@ -1,15 +1,22 @@
 """
 Ingestion Pipeline for RAG
 
-This script loads a PDF document, chunks it into smaller text segments,
-and uploads the vector embeddings to Pinecone.
+This script loads PDF documents from a configured directory, chunks them 
+into smaller text segments, and uploads the vector embeddings to Pinecone.
+
+It implements an idempotent workflow:
+1. Scans the source directory for new PDF files.
+2. Ingests and vectorizes the content.
+3. Moves processed files to a 'processed/' subdirectory to prevent re-ingestion.
 
 Usage:
     python ingest.py
 
 Environment Variables:
-    PINECONE_API_KEY: Required for vector store access.
-    PINECONE_INDEX_NAME: The target index in Pinecone.
+    PINECONE_API_KEY: Required. API key for the Pinecone vector database.
+    PINECONE_INDEX_NAME: Required. Name of the target Pinecone index.
+    DATA_FOLDER: Optional. Path to the directory containing PDFs to ingest. 
+                 Defaults to 'data'.
 """
 
 import os

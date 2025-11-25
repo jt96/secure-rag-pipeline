@@ -25,30 +25,30 @@ def setup_env():
     load_dotenv()
     print("Variables loaded.")
     
-    pdf_directory = "data"
+    DATA_FOLDER = os.getenv("DATA_FOLDER", "data")
     
     # Check for PDF folder, create one if it doesn't exist
-    if os.path.isdir(pdf_directory):
-        if not os.listdir(pdf_directory):
-            print(f'PDF folder {pdf_directory}/ is empty. Please add PDFs.')
+    if os.path.isdir(DATA_FOLDER):
+        if not os.listdir(DATA_FOLDER):
+            print(f'PDF folder {DATA_FOLDER}/ is empty. Please add PDFs.')
             sys.exit(0)
-    elif not os.path.isdir(pdf_directory):
-        os.makedirs(pdf_directory, exist_ok=True)
-        print(f'PDF folder {pdf_directory}/ does not exist. Folder has been created, please add PDFs.')
+    elif not os.path.isdir(DATA_FOLDER):
+        os.makedirs(DATA_FOLDER, exist_ok=True)
+        print(f'PDF folder {DATA_FOLDER}/ does not exist. Folder has been created, please add PDFs.')
         sys.exit(0)
         
 
 def ingest_docs():
-    pdf_directory = "data"
+    DATA_FOLDER = os.getenv("DATA_FOLDER", "data")
 
     # Check if file exists before crashing
-    if not os.path.exists(pdf_directory):
-        print(f"Error: Folder {pdf_directory} not found.")
+    if not os.path.exists(DATA_FOLDER):
+        print(f"Error: Folder {DATA_FOLDER} not found.")
         sys.exit(1)
 
     # Load all PDFs in folder
-    loader = PyPDFDirectoryLoader(pdf_directory)
-    print(f"Loading {len(os.listdir(pdf_directory))} PDFs...")
+    loader = PyPDFDirectoryLoader(DATA_FOLDER)
+    print(f"Loading {len(os.listdir(DATA_FOLDER))} PDFs...")
     docs = loader.load()
 
     # 1000 chars is about 250 words.

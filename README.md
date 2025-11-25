@@ -1,4 +1,4 @@
-﻿# SecureGov RAG Pipeline 
+﻿# SecureGov RAG Pipeline
 
 ## Project Overview
 A compliance-focused Retrieval-Augmented Generation (RAG) pipeline designed for regulated environments. This system enables secure document querying while strictly enforcing **Data Sovereignty**.
@@ -9,16 +9,16 @@ Unlike standard RAG implementations, this architecture uses **Local Embeddings**
 * **Ingestion Engine:** Python + LangChain for PDF parsing and recursive chunking.
 * **Vector Store:** Pinecone (Serverless Index) for semantic search.
 * **Cognitive Layer:** Hybrid approach using Local Embeddings (CPU) + Google Gemini (LLM) for answer synthesis.
-* **Infrastructure:** Fully containerized via Docker with volume mapping for dynamic data injection.
+* **Infrastructure:** Fully containerized via Docker Compose with dynamic volume mapping.
 
 ## Tech Stack
 * **Language:** Python 3.11
-* **Containerization:** Docker
+* **Containerization:** Docker & Docker Compose
 * **Framework:** LangChain v0.3
 * **Database:** Pinecone (Vector DB)
 * **AI Models:** `all-MiniLM-L6-v2` (Local) + `gemini-2.0-flash` (Cloud)
 
-## Quick Start (Docker)
+## Quick Start
 
 ### 1. Configuration
 Create a `.env` file in the root directory with your API keys:
@@ -27,38 +27,30 @@ PINECONE_API_KEY=your_key_here
 GOOGLE_API_KEY=your_key_here
 PINECONE_INDEX_NAME=secure-rag
 # Optional: Custom folder name (Defaults to "data")
-# DATA_FOLDER=my_docs
+# DATA_FOLDER=data
 ```
 
 ### 2. Prepare Data
 Create a folder named `data` in your project root and add your PDF files.
 
-### 3. Build the Image
-```bash
-docker build -t rag-app .
-```
+### 3. Run the Application
 
-### 4. Run the Application
+We use `docker compose run` to launch the interactive chat interface.
 
 **Option A: Chat Only (Default)**
-If you have already ingested data, just run the chat interface:
-
-*Windows (PowerShell):*
-```powershell
-docker run -it --env-file .env -v ${PWD}/data:/app/data rag-app
-```
-
-*Mac/Linux:*
+If you have already ingested data, run this command to start chatting immediately:
 ```bash
-docker run -it --env-file .env -v $(pwd)/data:/app/data rag-app
+docker compose run rag-app
 ```
 
 **Option B: Ingest & Chat (First Run)**
-To process new PDFs before chatting, set the `RUN_INGEST` variable to true:
+To process new PDFs before starting the chat, pass the ingestion environment variable:
+```bash
+# Windows (PowerShell)
+docker compose run -e RUN_INGEST=true rag-app
 
-*Windows (PowerShell):*
-```powershell
-docker run -it --env-file .env -e RUN_INGEST=true -v ${PWD}/data:/app/data rag-app
+# Mac/Linux
+docker compose run -e RUN_INGEST=true rag-app
 ```
 
 ---
@@ -66,19 +58,7 @@ docker run -it --env-file .env -e RUN_INGEST=true -v ${PWD}/data:/app/data rag-a
 ## Advanced Configuration
 
 ### Custom Data Folder
-If you want to name your local folder something else (e.g., `my_docs`), you must update **both** your `.env` file and the Docker command.
-
-1. **Update .env:**
-   ```env
-   DATA_FOLDER=my_docs
-   ```
-
-2. **Update Docker Command:**
-   You must map your local folder to the **same name** inside the container:
-   ```powershell
-   # Format: -v ${PWD}/[Local_Name]:/app/[Env_Var_Name]
-   docker run -it --env-file .env -v ${PWD}/my_docs:/app/my_docs rag-app
-   ```
+If you change the `DATA_FOLDER` variable in your `.env` file (e.g., to `my_docs`), Docker Compose will automatically map that local folder to the container thanks to dynamic variable substitution in `docker-compose.yml`.
 
 ---
 

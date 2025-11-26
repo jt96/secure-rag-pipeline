@@ -103,6 +103,7 @@ def ingest_docs(data_folder):
             print(f"Moved: {file_name} from {data_folder} to {processed_folder}")
         except Exception as e:
             print(f"Failed to move {file_name}: {e}")
+            continue
 
     # Print the first chunk to prove it worked
     # print(f"Content of Chunk 1: \n{splits[0].page_content[:200]}...")

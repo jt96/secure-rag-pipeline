@@ -58,6 +58,9 @@ If you just want to process data and exit (without starting the web server):
 docker compose run rag-app python ingest.py
 ```
 
+**Option D: Windows Chat Only "One-Click"**
+Simply double-click the `run_app.bat` file in the root directory.
+* This automatically starts Docker, waits for initialization, and opens your default web browser to the chat interface.
 ---
 
 ## Advanced Configuration

@@ -25,9 +25,10 @@ from dotenv import load_dotenv
 from langchain_pinecone import PineconeVectorStore
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_classic.chains import create_retrieval_chain
+from langchain_classic.chains import create_retrieval_chain, create_history_aware_retriever
 from langchain_classic.chains.combine_documents import create_stuff_documents_chain
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+
 
 def setup_env():
     load_dotenv()
@@ -54,28 +55,57 @@ def get_rag_chain():
     retriever = vector_store.as_retriever(search_kwargs={"k": 6})
 
     llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0)
+    
+    # Instructs the LLM to rephrase the question based on history.
+    contextualize_q_system_prompt = """
+    Given a chat history and the latest user question which might reference context in the chat history, 
+    formulate a standalone question which can be understood without the chat history. 
+    Do NOT answer the question, just reformulate it if needed and otherwise return it as is."""
+    
+    # Build the prompt template that includes the chat history placeholder
+    contextualize_q_prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", contextualize_q_system_prompt),
+            ("placeholder", "{chat_history}"),
+            ("human", "{input}"),
+        ]
+    )
 
-    template = """
-    Answer the user's question based ONLY on the context provided below. 
-    If the answer is not in the context, say "I don't know."
+    # It doesn't answer the question; it just finds the right documents.
+    history_aware_retriever = create_history_aware_retriever(llm, retriever, contextualize_q_prompt)
     
-    Context:
-    {context}
+    # Instructs the LLM to act as a Q&A assistant using specific context.
+    qa_system_prompt = """
+    You are an assistant for question-answering tasks. 
+    Use the following pieces of retrieved context to answer the question. 
+    If you don't know the answer, just say that you don't know. 
     
-    Question:
-    {input}
-    """
-    prompt = ChatPromptTemplate.from_template(template)
-
-    document_chain = create_stuff_documents_chain(llm, prompt)
+    {context}"""
     
-    rag_chain = create_retrieval_chain(retriever, document_chain)
+    # Feeds System Prompt + History + Question to the LLM
+    qa_prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", qa_system_prompt),
+            ("placeholder", "{chat_history}"),
+            ("human", "{input}"),
+        ]
+    )
+    
+    # This component puts the retrieved documents into the {context} variable of qa system prompt.
+    question_answer_chain = create_stuff_documents_chain(llm, qa_prompt)
+    
+    # This connects the search step (retriever) to the answer step (document chain).
+    rag_chain = create_retrieval_chain(history_aware_retriever, question_answer_chain)
 
     return rag_chain
 
 def main():
     setup_env()
     chain = get_rag_chain()
+    
+    chat_history = []
+    
+    print("Chat Ready. Type 'exit', 'quit' or 'q' to quit.")
     
     while True:
         query = input("You: ")
@@ -90,9 +120,13 @@ def main():
         print("Thinking...")
         
         try:
-            response = chain.invoke({"input": query})
+            response = chain.invoke({"input": query,
+                                     "chat_history": chat_history})
+            answer = response["answer"]
             print("\nAnswer:")
-            print(response["answer"] + "\n")
+            print(answer + "\n")
+            chat_history.append(("human", query))
+            chat_history.append(("ai", answer))
         except Exception as e:
             print(f"Error: {e}")
 

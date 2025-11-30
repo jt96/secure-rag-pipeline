@@ -123,16 +123,33 @@ def main():
             response = chain.invoke({"input": query,
                                      "chat_history": chat_history})
             answer = response["answer"]
-            sources = response["context"]
-            for document in sources:
-                print(f'Page: {document.metadata["page"]}')
-                print(f'Source: {document.metadata["source"]}')
-                print(document.page_content[:500])
+            
             print("\nAnswer:")
             print(answer + "\n")
             
             chat_history.append(("human", query))
             chat_history.append(("ai", answer))
+            
+            sources = response["context"]
+            unique_sources = set()
+            if sources:
+                print("Sources: \n")
+                for document in sources:
+                    file_source = document.metadata.get("source", "Unknown").replace("\\", "/")
+                    raw_page = document.metadata.get("page", "Unknown")
+                    page_num = int(raw_page) if isinstance(raw_page, (int, float)) else raw_page
+                    
+                    if file_source != "Unknown" and page_num != "Unknown":
+                        source_key = (file_source, page_num)
+                    else:
+                        source_key = (file_source, page_num, document.page_content[:50])
+                        
+                    if source_key not in unique_sources:
+                        unique_sources.add(source_key)
+                        
+                        snippet = document.page_content[:200].replace("\n", " ") + "..."
+                        print(f'Source: {file_source} (Page {page_num})')
+                        print(snippet)
         except Exception as e:
             print(f"Error: {e}")
 

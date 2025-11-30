@@ -123,8 +123,14 @@ def main():
             response = chain.invoke({"input": query,
                                      "chat_history": chat_history})
             answer = response["answer"]
+            sources = response["context"]
+            for document in sources:
+                print(f'Page: {document.metadata["page"]}')
+                print(f'Source: {document.metadata["source"]}')
+                print(document.page_content[:500])
             print("\nAnswer:")
             print(answer + "\n")
+            
             chat_history.append(("human", query))
             chat_history.append(("ai", answer))
         except Exception as e:

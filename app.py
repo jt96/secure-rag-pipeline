@@ -43,8 +43,31 @@ def setup_chat():
                 response = st.session_state.chain.invoke({"input": prompt,
                                                           "chat_history": chat_history})
                 answer = response["answer"]
+                sources = response["context"]
                 
                 message_placeholder.markdown(answer)
+                
+                if sources:
+                    with st.expander("Click to view sources."):
+                        unique_sources = set()
+                        for document in sources:
+                            file_source = document.metadata.get("source", "Unknown").replace("\\", "/")
+                            raw_page = document.metadata.get("page", "Unknown")
+                            page_num = int(raw_page) if isinstance(raw_page, (int, float)) else raw_page
+                            
+                            # Handles edge case where file name is unknown but page number is the same and vice versa.
+                            if file_source != "Unknown" and page_num != "Unknown":
+                                source_key = (file_source, page_num)
+                            else:
+                                source_key = (file_source, page_num, document.page_content[:50])
+                                
+                            if source_key not in unique_sources:
+                                unique_sources.add(source_key)
+                                
+                                snippet = document.page_content[:200].replace("\n", " ") + "..."
+                            
+                                st.markdown(f"Source: {file_source} (Page {page_num})")
+                                st.caption(f"\"{snippet}\"")
                 
                 st.session_state.messages.append({"role": "assistant", "content": answer})
             except Exception as e:

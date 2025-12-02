@@ -69,7 +69,10 @@ def setup_chat():
                 
                 message_placeholder.markdown(answer)
                 
-                if sources:
+                keywords = ["thank", "thanks", "goodbye", "bye", "hello", "hi"]
+                is_conversational = len(prompt.split()) < 4 or any(word in prompt.lower() for word in keywords)
+                
+                if sources and not is_conversational:
                     with st.expander("Click to view sources."):
                         unique_sources = set()
                         for document in sources:

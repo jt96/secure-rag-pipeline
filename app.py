@@ -43,9 +43,10 @@ def setup_chat():
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
-    if prompt := st.chat_input("Ask about your documents..."):
+    if (prompt := st.chat_input("Ask about your documents...")) and prompt.strip():
         if prompt.lower() in ["exit", "quit", "q"]:
-            st.warning("Ending session... Refresh the page to start over.")
+            st.session_state.messages = []
+            st.warning("Session Reset. Type a new question or refresh the page to start over.")
             st.stop()
                 
         with st.chat_message("user"):

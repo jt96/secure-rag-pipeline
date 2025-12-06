@@ -61,11 +61,6 @@ def ingest_docs(data_folder):
         print(f'Warning: No new PDFs found in {data_folder}.')
         sys.exit(0)
 
-    # Check if file exists before crashing
-    if not os.path.exists(data_folder):
-        print(f"Error: Folder {data_folder} not found.")
-        sys.exit(1)
-
     # Load all PDFs in folder
     docs = []
     print(f"Loading {len(pdf_files)} PDFs from '{data_folder}'...")

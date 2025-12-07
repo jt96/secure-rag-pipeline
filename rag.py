@@ -57,7 +57,7 @@ def get_rag_chain():
 
     llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0)
     
-    # Instructs the LLM to rephrase the question based on history.
+    # The instruction string for rephrasing questions.
     contextualize_q_system_prompt = """
     Given a chat history and the latest user question which might reference context in the chat history, 
     formulate a standalone question which can be understood without the chat history. 
@@ -83,7 +83,7 @@ def get_rag_chain():
     
     {context}"""
     
-    # Feeds System Prompt + History + Question to the LLM
+    # Build System Prompt + History + Question template.
     qa_prompt = ChatPromptTemplate.from_messages(
         [
             ("system", qa_system_prompt),

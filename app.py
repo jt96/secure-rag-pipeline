@@ -24,9 +24,15 @@ import streamlit as st
 from rag import get_rag_chain, setup_env
 
 def setup_chat():
+    """
+    Main application logic. 
+    Initializes the UI, manages session state, and handles the chat event loop.
+    """
     st.set_page_config(page_title="SecureGov RAG", page_icon="🛡️")
     st.title("SecureGov RAG Agent")
 
+    # Streamlit re-runs this script on every interaction. We check session_state
+    # to ensure we only load the heavy RAG models once.
     if "chain" not in st.session_state:
         with st.spinner("Loading RAG Pipeline..."):
             try:
@@ -39,6 +45,7 @@ def setup_chat():
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
+    # Re-draw all previous messages because Streamlit resets the interface on every run.
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
@@ -59,6 +66,8 @@ def setup_chat():
             message_placeholder.markdown("Thinking...")
             
             try:
+                # Convert Streamlit's JSON format [{"role": "user"}] to LangChain's 
+                # Tuple format [("human", "content")] so the RAG chain can read the history.
                 chat_history = []
                 for msg in st.session_state.messages[:-1]:
                     role = "human" if msg["role"] == "user" else "ai"
@@ -70,6 +79,8 @@ def setup_chat():
                 
                 message_placeholder.markdown(answer)
                 
+                # Only show source citations if the user asks a substantive question.
+                # Hiding sources for "Hi/Thanks" keeps the interface clean.
                 keywords = ["thank", "thanks", "goodbye", "bye", "hello", "hi"]
                 is_conversational = len(prompt.split()) < 4 or any(word in prompt.lower() for word in keywords)
                 

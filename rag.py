@@ -53,8 +53,10 @@ def get_rag_chain():
         embedding=embeddings,
         index_name=PINECONE_INDEX_NAME)
     
+    # k=6: Retrieve top 6 chunks to provide enough context for the AI.
     retriever = vector_store.as_retriever(search_kwargs={"k": 6})
 
+    # Temperature=0: Forces facts/sources instead of creative output.
     llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0)
     
     # The instruction string for rephrasing questions.
@@ -121,6 +123,8 @@ def main():
         print("Thinking...")
         
         try:
+            # Passes the user input and full chat history into the chain.
+            # These keys match the {input} and {chat_history} placeholders in the prompt templates.
             response = chain.invoke({"input": query,
                                      "chat_history": chat_history})
             answer = response["answer"]
@@ -131,6 +135,8 @@ def main():
             chat_history.append(("human", query))
             chat_history.append(("ai", answer))
             
+            # The retriever often returns multiple chunks from the same page.
+            # We use a set to ensure we only print one citation per unique page.
             sources = response["context"]
             unique_sources = set()
             if sources:

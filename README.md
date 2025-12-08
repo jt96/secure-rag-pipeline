@@ -27,7 +27,13 @@ Create a `.env` file in the root directory with your API keys:
 PINECONE_API_KEY=your_key_here
 GOOGLE_API_KEY=your_key_here
 PINECONE_INDEX_NAME=secure-rag
-# Optional: Custom folder name (Defaults to "data")
+
+# Optional: Select the AI Model version
+# Defaults to "gemini-2.5-flash" if not set.
+# Use this to switch versions if Google deprecates a free tier model (e.g., "gemini-3.0-flash").
+LLM_MODEL=gemini-2.5-flash
+
+# Optional: Custom folder name for source PDFs (Defaults to "data")
 # DATA_FOLDER=data
 ```
 

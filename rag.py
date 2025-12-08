@@ -55,9 +55,11 @@ def get_rag_chain():
     
     # k=6: Retrieve top 6 chunks to provide enough context for the AI.
     retriever = vector_store.as_retriever(search_kwargs={"k": 6})
+    
+    model_name = os.getenv("LLM_MODEL", "gemini-2.5-flash")
 
     # Temperature=0: Forces facts/sources instead of creative output.
-    llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0)
+    llm = ChatGoogleGenerativeAI(model=model_name, temperature=0)
     
     # The instruction string for rephrasing questions.
     contextualize_q_system_prompt = """

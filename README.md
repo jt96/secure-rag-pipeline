@@ -1,9 +1,9 @@
 ﻿# SecureGov RAG Pipeline
 
 ## Project Overview
-A compliance-focused Retrieval-Augmented Generation (RAG) pipeline designed for regulated environments. This system enables secure document querying while strictly enforcing **Data Sovereignty**.
+A **Cost-Optimized** Retrieval-Augmented Generation (RAG) pipeline designed for efficient document querying. Unlike standard RAG implementations that rely entirely on paid APIs, this architecture uses **Local Embeddings** (HuggingFace) to eliminate external embedding API costs and latency.
 
-Unlike standard RAG implementations, this architecture uses **Local Embeddings** (HuggingFace) to ensure document text is never sent to external embedding APIs, maintaining a strict boundary for sensitive data. The application is served via a modern **Streamlit Web Interface**.
+The system integrates a **serverless vector database (Pinecone)** for scalable retrieval with a **cloud-based LLM (Gemini)** for generation. The application is served via a modern **Streamlit Web Interface**, demonstrating a **Hybrid AI Architecture** that balances local processing efficiency with cloud scalability.
 
 ## Architecture
 * **Ingestion Engine:** Python + LangChain for PDF parsing and recursive chunking.
@@ -17,7 +17,7 @@ Unlike standard RAG implementations, this architecture uses **Local Embeddings**
 * **Containerization:** Docker & Docker Compose
 * **Framework:** LangChain v0.3
 * **Database:** Pinecone (Vector DB)
-* **AI Models:** `all-MiniLM-L6-v2` (Local) + `gemini-2.0-flash` (Cloud)
+* **AI Models:** `all-MiniLM-L6-v2` (Local) + `gemini-2.5-flash` (Cloud)
 
 ## Quick Start
 

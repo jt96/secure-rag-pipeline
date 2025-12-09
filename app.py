@@ -17,7 +17,7 @@ Features:
 Usage:
     streamlit run app.py
     # OR via Docker
-    docker compose run --service-ports rag-app
+    docker compose run --service-ports hybrid-rag-app
 """
 
 import streamlit as st

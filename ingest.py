@@ -27,6 +27,7 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_pinecone import PineconeVectorStore
 from langchain_huggingface import HuggingFaceEmbeddings
+from state_manager import StateManager, compute_file_hash
 
 def setup_env():
     """
@@ -79,16 +80,32 @@ def ingest_docs(data_folder):
     # Load all PDFs in folder
     docs = []
     print(f"Loading {len(pdf_files)} PDFs from '{data_folder}'...")
-    successful_files = []
+    
+    manager = StateManager()
+    successful_files = {} # Stores {filename: hash} to avoid re-hashing later
+    
     for pdf_file in pdf_files:
         file_path = os.path.join(data_folder, pdf_file)
+        
+        file_hash = compute_file_hash(file_path)
+        if not file_hash:
+            print(f"Skipping {pdf_file}: Could not compute hash.")
+            
+        if manager.is_processed(file_hash):
+            print(f"Skipping {pdf_file}: Already processed.")
+            continue
+        
         try:
             loader = PyPDFLoader(file_path)
             docs.extend(loader.load())
-            successful_files.append(pdf_file)
+            successful_files[pdf_file] = file_hash
         except Exception as e:
             print(f"Error loading {pdf_file}: {e} (SKIPPING)")
             continue
+        
+    if not docs:
+        print("No new documents to process.")
+        sys.exit(0)
 
     # 1000 chars is about 250 words.
     # 200 overlap ensures we don't cut a sentence in half.
@@ -107,11 +124,15 @@ def ingest_docs(data_folder):
     print(f"Created {len(splits)} vector chunks.")
     
     print(f"Moving processed files to {processed_folder}")
-    for file_name in successful_files:
+    for file_name, file_hash in successful_files.items():
         src_path = os.path.join(data_folder, file_name)
         dst_path = os.path.join(processed_folder, file_name)
         try:
             shutil.move(src_path, dst_path)
+            
+            # Update state ONLY after successful move to prevent data mismatch
+            manager.add_processed(file_hash, file_name)
+            
             print(f"Moved: {file_name} from {data_folder} to {processed_folder}")
         except Exception as e:
             print(f"Failed to move {file_name}: {e}")
@@ -161,7 +182,8 @@ def main():
     try:
         data_path = setup_env()
         text_chunks = ingest_docs(data_path)
-        vectorize_and_upload(text_chunks)
+        if text_chunks:
+            vectorize_and_upload(text_chunks)
     except Exception as e:
         print(f"Failed: {e}")
         sys.exit(1)

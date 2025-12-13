@@ -95,7 +95,7 @@ def compute_file_hash(input_file_path: str, algo: str="sha256", chunk_size: int=
         return None
 
 def main():
-    test_file_path = "./data/test.txt"
+    test_file_path = "./data/ghost.txt"
     hashed_file = compute_file_hash(test_file_path,"sha256",4096)
     
     if not hashed_file:

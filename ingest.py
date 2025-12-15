@@ -42,11 +42,7 @@ def setup_env():
     data_folder = os.getenv("DATA_FOLDER", "data")
         
     # Check for PDF folder, create one if it doesn't exist
-    if os.path.isdir(data_folder):
-        if not os.listdir(data_folder):
-            print(f'PDF folder {data_folder}/ is empty. Please add PDFs.')
-            sys.exit(0)
-    else:
+    if not os.path.isdir(data_folder):
         os.makedirs(data_folder, exist_ok=True)
         print(f'PDF folder {data_folder}/ does not exist. Folder has been created, please add PDFs.')
         sys.exit(0)

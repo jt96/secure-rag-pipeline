@@ -56,11 +56,13 @@ def setup_chat():
             st.warning("Session Reset. Type a new question or refresh the page to start over.")
             st.stop()
                 
+        # Render User Message
         with st.chat_message("user"):
             st.markdown(prompt)
             
         st.session_state.messages.append({"role": "user", "content": prompt})
         
+        # Generate AI Response
         with st.chat_message("assistant"):
             message_placeholder = st.empty()
             message_placeholder.markdown("Thinking...")

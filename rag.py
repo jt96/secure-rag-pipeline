@@ -32,6 +32,7 @@ from langchain_core.prompts import ChatPromptTemplate
 
 
 def setup_env():
+    """Validates API keys and environment configuration."""
     load_dotenv()
     if not os.getenv("GOOGLE_API_KEY") or not os.getenv("PINECONE_API_KEY"):
         print("Error: Missing API keys in .env")
@@ -104,6 +105,31 @@ def get_rag_chain():
 
     return rag_chain
 
+def print_citations(sources):
+    """Parses and prints unique source documents to the console."""
+    unique_sources = set()
+    if not sources:
+        return
+    
+    print("Sources: \n")
+    for document in sources:
+        file_source = document.metadata.get("source", "Unknown").replace("\\", "/")
+        raw_page = document.metadata.get("page", "Unknown")
+        page_num = int(raw_page) if isinstance(raw_page, (int, float)) else raw_page
+        
+        # Create a unique key to prevent duplicate citations for the same page
+        if file_source != "Unknown" and page_num != "Unknown":
+            source_key = (file_source, page_num)
+        else:
+            # Fallback for missing metadata: use content snippet.
+            source_key = (file_source, page_num, document.page_content[:50])
+            
+        if source_key not in unique_sources:
+            unique_sources.add(source_key)
+            snippet = document.page_content[:200].replace("\n", " ") + "..."
+            print(f'Source: {file_source} (Page {page_num})')
+            print(snippet)
+
 def main():
     setup_env()
     chain = get_rag_chain()
@@ -140,25 +166,7 @@ def main():
             # The retriever often returns multiple chunks from the same page.
             # We use a set to ensure we only print one citation per unique page.
             sources = response["context"]
-            unique_sources = set()
-            if sources:
-                print("Sources: \n")
-                for document in sources:
-                    file_source = document.metadata.get("source", "Unknown").replace("\\", "/")
-                    raw_page = document.metadata.get("page", "Unknown")
-                    page_num = int(raw_page) if isinstance(raw_page, (int, float)) else raw_page
-                    
-                    if file_source != "Unknown" and page_num != "Unknown":
-                        source_key = (file_source, page_num)
-                    else:
-                        source_key = (file_source, page_num, document.page_content[:50])
-                        
-                    if source_key not in unique_sources:
-                        unique_sources.add(source_key)
-                        
-                        snippet = document.page_content[:200].replace("\n", " ") + "..."
-                        print(f'Source: {file_source} (Page {page_num})')
-                        print(snippet)
+            print_citations(sources)
         except Exception as e:
             print(f"Error: {e}")
 

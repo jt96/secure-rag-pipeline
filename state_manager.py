@@ -48,7 +48,6 @@ class StateManager:
     state: dict[str, str]
     
     def __init__(self, state_file: str="state.json"):
-        # Convert relative path to absolute path based on where this script lives.
         base_dir = os.path.dirname(os.path.abspath(__file__))
         self.state_file = os.path.join(base_dir, state_file)
         
@@ -61,7 +60,6 @@ class StateManager:
             return {}
         
         try:
-            # Check if file is empty to prevent JSON decode errors.
             if os.path.getsize(self.state_file) == 0:
                 logger.warning(f"State file {self.state_file} is empty. Resetting state.")
                 return {}
@@ -81,7 +79,6 @@ class StateManager:
         """Updates the state and persists it to disk immediately."""
         self.state[file_hash] = filename
         try:
-            # Persist immediately to handle crashes/interrupts safely.
             with open(self.state_file, "w") as json_file:
                 json.dump(self.state, json_file, indent=4)
             logger.info(f"Successfully tracked: {filename}")
@@ -93,7 +90,6 @@ def compute_file_hash(input_file_path: str, algo: str="sha256", chunk_size: int=
     hasher = hashlib.new(algo)
     try:
         with open(input_file_path, "rb") as f:
-            # Read in chunks to avoid memory issues with large files.
             while chunk := f.read(chunk_size):
                 hasher.update(chunk)
         return hasher.hexdigest()

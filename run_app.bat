@@ -1,14 +1,14 @@
 @echo off
 echo Starting Hybrid RAG...
 
-:: 1. Start Docker in detached mode (background)
+:: Start Docker in detached mode (background)
 docker compose up -d
 
-:: 2. Wait 5 seconds for Streamlit to boot
+:: Allow time for container initialization
 timeout /t 5
 
-:: 3. Open the browser
+:: Open UI
 start http://localhost:8501
 
-:: 4. Show logs (Optional - so you can see "Thinking...")
+:: Stream logs
 docker compose logs -f

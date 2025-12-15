@@ -7,6 +7,7 @@ services:
     env_file:
       - .env
     
+    # Maps local data folder to container data folder
     volumes:
       - ./${DATA_FOLDER:-data}:/app/${DATA_FOLDER:-data}
 

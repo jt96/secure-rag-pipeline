@@ -38,7 +38,6 @@ def setup_env():
     """
     print("Loading environment variables...")
     load_dotenv()
-    print("Variables loaded.")
     
     data_folder = os.getenv("DATA_FOLDER", "data")
         
@@ -47,7 +46,7 @@ def setup_env():
         if not os.listdir(data_folder):
             print(f'PDF folder {data_folder}/ is empty. Please add PDFs.')
             sys.exit(0)
-    elif not os.path.isdir(data_folder):
+    else:
         os.makedirs(data_folder, exist_ok=True)
         print(f'PDF folder {data_folder}/ does not exist. Folder has been created, please add PDFs.')
         sys.exit(0)

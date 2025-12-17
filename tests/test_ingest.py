@@ -117,5 +117,67 @@ def test_vectorize_and_upload_success(mock_environ, mock_vectorstore_class, mock
     _, kwargs = mock_vectorstore_class.from_documents.call_args
     assert kwargs["documents"] == mock_docs
 
+@patch("ingest.sys.exit")
+@patch("ingest.PineconeVectorStore")
+@patch("ingest.HuggingFaceEmbeddings")
+@patch("ingest.os.environ")
+def test_failed_upload(mock_environ, mock_embeddings_class, mock_vectorstore_class, mock_exit):
+    """
+    Verifies that the upload process handles Pinecone API errors gracefully 
+    by catching the exception and exiting with a non-zero status code.
+    """
+    mock_docs = [MagicMock()]
     
-  
+    # Simulate a critical failure during the upload step
+    mock_vectorstore_class.from_documents.side_effect = Exception("Simulated upload error")
+        
+    mock_exit.side_effect = SystemExit
+    
+    with pytest.raises(SystemExit):
+        vectorize_and_upload(mock_docs)
+
+    # Verify we exited with an error code (1) indicating failure
+    mock_exit.assert_called_once_with(1)
+
+@patch("ingest.shutil.move")
+@patch("ingest.compute_file_hash")
+@patch("ingest.StateManager")
+@patch("ingest.PyPDFLoader")
+@patch("ingest.RecursiveCharacterTextSplitter")
+@patch("ingest.os.listdir")
+@patch("ingest.os.path.exists")
+def test_corrupt_pdf(mock_exists, mock_listdir, mock_splitter_class, mock_loader_class, 
+                     mock_manager_class, mock_hasher, mock_move):
+    """
+    Tests the ingestion pipeline's resilience. Verifies that if one PDF is corrupt 
+    (raises an error), the system logs it and continues processing the remaining valid files.
+    """
+    mock_exists.return_value = True 
+    mock_listdir.return_value = ["bad_doc.pdf", "good_doc.pdf"] 
+    
+    mock_hasher.return_value.side_ = "abc123hash" 
+    mock_move.return_value = True
+
+    # Setup valid document return
+    mock_manager_instance = mock_manager_class.return_value
+    mock_manager_instance.is_processed.return_value = False 
+    mock_manager_instance.add_processed.return_value = True
+
+    # Configure Loader. First call crashes (bad file), second call succeeds (good file)
+    mock_loader_instance = mock_loader_class.return_value
+    mock_doc = MagicMock()
+    mock_doc.page_content = "Hello World"
+    mock_doc.metadata = {"source": "test_doc.pdf", "page": 1}
+    
+    mock_loader_instance.load.side_effect = [Exception("Corrupted pdf"), [mock_doc]]
+
+    mock_splitter_instance = mock_splitter_class.return_value
+    mock_splitter_instance.split_documents.return_value = ["chunk1", "chunk2"]
+
+    result = ingest_docs("data")
+    
+    # Verify that we still successfully processed the valid file
+    assert len(result) == 2
+    
+    # Ensure the loader attempted to process both files
+    assert mock_loader_instance.load.call_count == 2

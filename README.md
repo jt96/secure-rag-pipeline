@@ -15,6 +15,7 @@ The system integrates a **serverless vector database (Pinecone)** for scalable r
 * **Language:** Python 3.11
 * **Interface:** Streamlit
 * **Containerization:** Docker & Docker Compose
+* **Testing:** Pytest & Unittest.mock
 * **Framework:** LangChain v0.3
 * **Database:** Pinecone (Vector DB)
 * **AI Models:** `all-MiniLM-L6-v2` (Local) + `gemini-2.5-flash` (Cloud)
@@ -67,6 +68,21 @@ docker compose run hybrid-rag-app python ingest.py
 **Option D: Windows Chat Only "One-Click"**
 Simply double-click the `run_app.bat` file in the root directory.
 * This automatically starts Docker, waits for initialization, and opens your default web browser to the chat interface.
+
+---
+
+## Testing & Quality Assurance
+The project includes a comprehensive unit test suite ensuring reliability across the pipeline.
+* **Framework:** `pytest` with `unittest.mock`
+* **Coverage:** 15 Unit Tests covering Ingestion logic, State Management, and RAG initialization.
+* **Strategy:** Full isolation using Mocks to simulate Pinecone, Google Gemini, and File System interactions without network calls.
+
+**To Run Tests:**
+```bash
+# Requires local dev environment (see below)
+pytest
+```
+
 ---
 
 ## Advanced Configuration
@@ -89,12 +105,17 @@ If you change the `DATA_FOLDER` variable in your `.env` file (e.g., to `my_docs`
    pip install -r requirements.txt
    ```
 
-2. **Run Ingestion:**
+2. **Run Tests:**
+   ```bash
+   pytest
+   ```
+
+3. **Run Ingestion:**
    ```bash
    python ingest.py
    ```
 
-3. **Run UI:**
+4. **Run UI:**
    ```bash
    streamlit run app.py
    ```

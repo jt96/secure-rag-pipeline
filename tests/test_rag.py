@@ -27,8 +27,8 @@ import pytest # noqa: E402
 from unittest.mock import patch, MagicMock # noqa: E402
 from src.rag import setup_env, get_rag_chain, print_citations # noqa: E402
 
-@patch("rag.os.getenv")
-@patch("rag.sys.exit")
+@patch("src.rag.os.getenv")
+@patch("src.rag.sys.exit")
 def test_setup_env_exits_when_missing(mock_exit, mock_getenv):
     """
     Verifies that the environment setup terminates the application if 
@@ -105,8 +105,8 @@ def test_get_rag_chain_initialization(mock_embeddings_class, mock_vectorstore_cl
     mock_stuff_chain.assert_called_once()
     mock_retrieval_chain.assert_called_once()
     
-@patch("rag.sys.exit")
-@patch("rag.os.environ")
+@patch("src.rag.sys.exit")
+@patch("src.rag.os.environ")
 def test_get_rag_chain_missing_env(mock_environ, mock_exit):
     """
     Verifies that a missing PINECONE_INDEX_NAME raises a KeyError which is 

@@ -23,7 +23,7 @@ parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
 
 import pytest # noqa: E402
-from state_manager import StateManager, compute_file_hash # noqa: E402
+from src.state_manager import StateManager, compute_file_hash # noqa: E402
 
 @pytest.fixture
 def temp_state_file(tmp_path):

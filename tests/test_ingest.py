@@ -25,13 +25,13 @@ sys.path.insert(0, parent_dir)
 
 import pytest # noqa: E402
 from unittest.mock import patch, MagicMock # noqa: E402
-from ingest import setup_env, ingest_docs, vectorize_and_upload # noqa: E402
+from src.ingest import setup_env, ingest_docs, vectorize_and_upload # noqa: E402
 
-@patch("ingest.os.getenv")
-@patch("ingest.sys.exit")
-@patch("ingest.os.makedirs")
-@patch("ingest.os.path.isdir")
-@patch("ingest.load_dotenv")
+@patch("src.ingest.os.getenv")
+@patch("src.ingest.sys.exit")
+@patch("src.ingest.os.makedirs")
+@patch("src.ingest.os.path.isdir")
+@patch("src.ingest.load_dotenv")
 def test_setup_env_creates_missing_folder(mock_dotenv, mock_isdir, mock_makedirs, mock_exit, mock_getenv):
     """
     Verifies that the environment setup script correctly identifies a missing 
@@ -52,13 +52,13 @@ def test_setup_env_creates_missing_folder(mock_dotenv, mock_isdir, mock_makedirs
     
     mock_exit.assert_called_once_with(0)
     
-@patch("ingest.shutil.move")
-@patch("ingest.RecursiveCharacterTextSplitter")
-@patch("ingest.PyPDFLoader")
-@patch("ingest.StateManager")
-@patch("ingest.compute_file_hash")
-@patch("ingest.os.listdir")
-@patch("ingest.os.path.exists")
+@patch("src.ingest.shutil.move")
+@patch("src.ingest.RecursiveCharacterTextSplitter")
+@patch("src.ingest.PyPDFLoader")
+@patch("src.ingest.StateManager")
+@patch("src.ingest.compute_file_hash")
+@patch("src.ingest.os.listdir")
+@patch("src.ingest.os.path.exists")
 def test_ingest_docs_successful_processing(
     mock_exists, mock_listdir, mock_hasher, mock_manager_class, 
     mock_loader_class, mock_splitter_class, mock_move
@@ -93,9 +93,9 @@ def test_ingest_docs_successful_processing(
     mock_move.assert_called_once() 
     mock_manager_instance.add_processed.assert_called_once_with("abc123hash", "test_doc.pdf")
 
-@patch("ingest.sys.exit")
-@patch("ingest.os.listdir")
-@patch("ingest.os.path.exists")
+@patch("src.ingest.sys.exit")
+@patch("src.ingest.os.listdir")
+@patch("src.ingest.os.path.exists")
 def test_ingest_docs_no_pdfs_found(mock_exists, mock_listdir, mock_exit):
     """
     Verifies that the ingestion process aborts early (exits with 0) 
@@ -112,9 +112,9 @@ def test_ingest_docs_no_pdfs_found(mock_exists, mock_listdir, mock_exit):
     
     mock_exit.assert_called_once_with(0)
 
-@patch("ingest.HuggingFaceEmbeddings")
-@patch("ingest.PineconeVectorStore")
-@patch("ingest.os.environ")
+@patch("src.ingest.HuggingFaceEmbeddings")
+@patch("src.ingest.PineconeVectorStore")
+@patch("src.ingest.os.environ")
 def test_vectorize_and_upload_success(mock_environ, mock_vectorstore_class, mock_embeddings_class):
     """
     Verifies that the system correctly initializes the HuggingFace embedding model 
@@ -135,10 +135,10 @@ def test_vectorize_and_upload_success(mock_environ, mock_vectorstore_class, mock
     _, kwargs = mock_vectorstore_class.from_documents.call_args
     assert kwargs["documents"] == mock_docs
 
-@patch("ingest.sys.exit")
-@patch("ingest.PineconeVectorStore")
-@patch("ingest.HuggingFaceEmbeddings")
-@patch("ingest.os.environ")
+@patch("src.ingest.sys.exit")
+@patch("src.ingest.PineconeVectorStore")
+@patch("src.ingest.HuggingFaceEmbeddings")
+@patch("src.ingest.os.environ")
 def test_failed_upload(mock_environ, mock_embeddings_class, mock_vectorstore_class, mock_exit):
     """
     Verifies that the upload process handles Pinecone API errors gracefully 
@@ -157,13 +157,13 @@ def test_failed_upload(mock_environ, mock_embeddings_class, mock_vectorstore_cla
     # Verify we exited with an error code (1) indicating failure
     mock_exit.assert_called_once_with(1)
 
-@patch("ingest.shutil.move")
-@patch("ingest.compute_file_hash")
-@patch("ingest.StateManager")
-@patch("ingest.PyPDFLoader")
-@patch("ingest.RecursiveCharacterTextSplitter")
-@patch("ingest.os.listdir")
-@patch("ingest.os.path.exists")
+@patch("src.ingest.shutil.move")
+@patch("src.ingest.compute_file_hash")
+@patch("src.ingest.StateManager")
+@patch("src.ingest.PyPDFLoader")
+@patch("src.ingest.RecursiveCharacterTextSplitter")
+@patch("src.ingest.os.listdir")
+@patch("src.ingest.os.path.exists")
 def test_corrupt_pdf(mock_exists, mock_listdir, mock_splitter_class, mock_loader_class, 
                      mock_manager_class, mock_hasher, mock_move):
     """

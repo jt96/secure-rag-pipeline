@@ -27,7 +27,7 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_pinecone import PineconeVectorStore
 from langchain_huggingface import HuggingFaceEmbeddings
-from state_manager import StateManager, compute_file_hash
+from src.state_manager import StateManager, compute_file_hash
 
 def setup_env():
     """

@@ -21,7 +21,7 @@ Usage:
 """
 
 import streamlit as st
-from rag import get_rag_chain, setup_env
+from src.rag import get_rag_chain, setup_env
 
 def setup_chat():
     """

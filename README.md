@@ -133,7 +133,7 @@ Use the `server_public_ip` output from Terraform:
 ssh -i "devops-key.pem" ubuntu@<YOUR_PUBLIC_IP>
 ```
 
-**3. Configure Secrets (Manual Step)**
+**3. Configure Secrets (On the Server)**
 For security, the automated script creates a placeholder `.env` file. You must update it with valid API keys:
 ```bash
 # On the server
@@ -142,7 +142,7 @@ nano hybrid-rag-infrastructure/.env
 ```
 *Update `GOOGLE_API_KEY`, `PINECONE_API_KEY`, and `PINECONE_INDEX_NAME` with your actual values.*
 
-**4. Launch the Application**
+**4. Launch the Application (On the Server)**
 Navigate to the project root and start the Streamlit server:
 ```bash
 cd hybrid-rag-infrastructure

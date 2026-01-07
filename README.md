@@ -9,11 +9,14 @@ The system integrates a **serverless vector database (Pinecone)** for scalable r
 * **Ingestion Engine:** Python + LangChain for PDF parsing and recursive chunking.
 * **Vector Store:** Pinecone (Serverless Index) for semantic search.
 * **Cognitive Layer:** Hybrid approach using Local Embeddings (CPU) + Google Gemini (LLM) for answer synthesis.
-* **Infrastructure:** Fully containerized via Docker Compose with dynamic volume mapping.
+* **Infrastructure:** AWS EC2 (Compute), Custom VPC (Network), Terraform (IaC), Bash (Provisioning).
+* **Containerization:** Docker Compose (Local Dev) / Native Systemd (Cloud - *Coming Soon*).
 
 ## Tech Stack
 * **Language:** Python 3.11
 * **Interface:** Streamlit
+* **Infrastructure as Code:** Terraform
+* **Cloud Provider:** AWS (EC2, VPC, Security Groups)
 * **Containerization:** Docker & Docker Compose
 * **Testing:** Pytest & Unittest.mock
 * **Framework:** LangChain v0.3
@@ -23,15 +26,34 @@ The system integrates a **serverless vector database (Pinecone)** for scalable r
 ## Project Structure
 ```text
 hybrid-rag/
-├── src/                # Application Source Code
-│   ├── app.py          # Streamlit Interface
-│   ├── ingest.py       # Data Processing Engine
-│   ├── rag.py          # RAG Logic & Chain
-│   └── state_manager.py # State Persistence
-├── data/               # PDF Storage (Mapped Volume)
-├── tests/              # Unit Tests
-├── Dockerfile          # Container Definition
-└── docker-compose.yml  # Orchestration
+├── infrastructure/         # IaC Configuration
+│   ├── main.tf             # Server & Provider config
+│   ├── security.tf         # Security Groups
+│   ├── vpc.tf              # Network (VPC, Subnets, IGW)
+│   ├── install_app.sh      # User Data / Provisioning Script
+│   └── .terraform.lock.hcl # Provider version lock
+├── src/                    # Application Source Code
+│   ├── __init__.py         # Package marker
+│   ├── app.py              # Streamlit Interface
+│   ├── ingest.py           # Data Processing Engine
+│   ├── rag.py              # RAG Logic & Chain
+│   └── state_manager.py    # State Persistence
+├── tests/                  # Unit Tests
+│   ├── test_ingest.py
+│   ├── test_rag.py
+│   └── test_state_manager.py
+├── .github/workflows/      # CI/CD
+│   └── ci.yml              # GitHub Actions Workflow
+├── data/                   # PDF Storage (Mapped Volume)
+├── .dockerignore
+├── .gitignore
+├── Dockerfile              # Container Definition
+├── docker-compose.yml      # Orchestration
+├── LICENSE
+├── pytest.ini              # Test Configuration
+├── requirements.txt        # Python Dependencies
+├── run_app.bat             # Windows Quick Start
+└── start.sh                # Utility Script
 ```
 
 ## Quick Start
@@ -85,6 +107,62 @@ Simply double-click the `run_app.bat` file in the root directory.
 
 ---
 
+## ☁️ Sprint 4: Native Cloud Deployment (AWS EC2)
+
+This phase deploys the application directly onto an Ubuntu EC2 instance using Terraform for infrastructure and a Bash User Data script for provisioning.
+
+### Infrastructure Architecture
+* **Compute:** AWS EC2 (t2.micro) running Ubuntu 24.04.
+* **Network:** Custom VPC, Public Subnet, Internet Gateway.
+* **Security:** Security Group allowing SSH (22), HTTP (80), and Streamlit (8501).
+* **Provisioning:** `cloud-init` (User Data) script installs Python, Git, and Pip automatically.
+
+### 🚀 How to Deploy
+
+**1. Provision Infrastructure**
+Navigate to the infrastructure directory and apply the Terraform configuration:
+```bash
+cd infrastructure
+terraform init
+terraform plan
+terraform apply
+```
+
+**2. SSH into the Server**
+Use the `server_public_ip` output from Terraform:
+```bash
+ssh -i "devops-key.pem" ubuntu@<YOUR_PUBLIC_IP>
+```
+
+**3. Configure Secrets (Manual Step)**
+For security, the automated script creates a placeholder `.env` file. You must update it with valid API keys:
+```bash
+# On the server
+sudo chown ubuntu:ubuntu hybrid-rag-infrastructure/.env
+nano hybrid-rag-infrastructure/.env
+```
+*Update `GOOGLE_API_KEY`, `PINECONE_API_KEY`, and `PINECONE_INDEX_NAME` with your actual values.*
+
+**4. Launch the Application**
+Navigate to the project root and start the Streamlit server:
+```bash
+cd hybrid-rag-infrastructure
+source venv/bin/activate
+PYTHONPATH=. streamlit run src/app.py --server.address 0.0.0.0
+```
+
+**5. Access the Interface**
+Open your web browser and navigate to:
+`http://<YOUR_PUBLIC_IP>:8501`
+
+**6. Clean Up**
+To avoid costs, destroy the infrastructure when finished:
+```bash
+terraform destroy
+```
+
+---
+
 ## Testing & Quality Assurance
 The project includes a comprehensive unit test suite ensuring reliability across the pipeline.
 * **Framework:** `pytest` with `unittest.mock`
@@ -111,11 +189,8 @@ If you change the `DATA_FOLDER` variable in your `.env` file (e.g., to `my_docs`
 1. **Install Dependencies:**
    ```bash
    python -m venv venv
-   # Windows
-   .\venv\Scripts\activate
-   # Mac/Linux
-   source venv/bin/activate
-   
+   # Windows: .\venv\Scripts\activate
+   # Mac/Linux: source venv/bin/activate
    pip install -r requirements.txt
    ```
 

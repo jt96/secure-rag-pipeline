@@ -29,6 +29,9 @@ Thumbs.db
 state.json
 state.json.bak
 
+# Testing
+.pytest_cache/
+
 # Terraform
 infrastructure/.terraform/
 infrastructure/*.tfstate

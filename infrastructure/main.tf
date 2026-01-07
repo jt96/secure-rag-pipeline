@@ -14,7 +14,7 @@ provider "aws" {
 resource "aws_instance" "rag_server" {
   ami           = "ami-0e2c8caa4b6378d8c" # Ubuntu 24.04 (us-east-1)
   instance_type = "t2.micro"
-  key_name = "devops-key"
+  key_name      = "devops-key"
 
   subnet_id                   = aws_subnet.public_subnet.id
   vpc_security_group_ids      = [aws_security_group.rag_sg.id]

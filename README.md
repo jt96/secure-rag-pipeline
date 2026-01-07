@@ -124,7 +124,6 @@ Navigate to the infrastructure directory and apply the Terraform configuration:
 ```bash
 cd infrastructure
 terraform init
-terraform plan
 terraform apply
 ```
 

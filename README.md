@@ -205,6 +205,16 @@ If you change the `DATA_FOLDER` variable in your `.env` file (e.g., to `my_docs`
    ```
 
 4. **Run UI:**
+   To run the application locally, you must add the project root to your Python path:
+
+   **Mac/Linux (Bash):**
    ```bash
+   export PYTHONPATH=$PYTHONPATH:.
+   streamlit run src/app.py
+   ```
+
+   **Windows (PowerShell):**
+   ```powershell
+   $env:PYTHONPATH = "."
    streamlit run src/app.py
    ```

@@ -2,6 +2,7 @@
 set -e
 
 # --- System Updates & Docker Installation ---
+echo "Installing system dependencies..."
 sudo apt-get update
 sudo apt-get install -y docker.io unzip jq
 

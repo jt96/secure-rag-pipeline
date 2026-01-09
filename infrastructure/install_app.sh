@@ -1,34 +1,39 @@
 #!/bin/bash
-
 set -e
 
-exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
+# --- System Updates & Docker Installation ---
+sudo apt-get update
+sudo apt-get install -y docker.io unzip awscli jq
 
-export DEBIAN_FRONTEND=noninteractive
+sudo systemctl start docker
+sudo systemctl enable docker
+sudo usermod -aG docker ubuntu
 
-apt update -y
-apt-get upgrade -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
+# --- Dynamic Environment Discovery ---
+# Retrieve metadata securely using IMDSv2
+TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
+REGION=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/placement/region)
+ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+ECR_URL="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/hybrid-rag-app"
 
-apt-get install -y python3-pip python3-venv git
+# --- Authentication ---
+aws ecr get-login-password --region "$REGION" | sudo docker login --username AWS --password-stdin "$ECR_URL"
 
-echo "Starting deployment..."
+# --- Retrieve Configuration (SSM) ---
+PINECONE_KEY=$(aws ssm get-parameter --name "/hybrid-rag/PINECONE_API_KEY" --with-decryption --query Parameter.Value --output text --region "$REGION")
+GOOGLE_KEY=$(aws ssm get-parameter --name "/hybrid-rag/GOOGLE_API_KEY" --with-decryption --query Parameter.Value --output text --region "$REGION")
+PINECONE_INDEX=$(aws ssm get-parameter --name "/hybrid-rag/PINECONE_INDEX_NAME" --query Parameter.Value --output text --region "$REGION")
+LLM_MODEL=$(aws ssm get-parameter --name "/hybrid-rag/LLM_MODEL" --query Parameter.Value --output text --region "$REGION")
 
-cd /home/ubuntu || exit
+# --- Launch Container ---
+sudo docker pull "$ECR_URL:latest"
 
-git clone https://github.com/jt96/hybrid-rag-infrastructure.git
-
-chown -R ubuntu:ubuntu hybrid-rag-infrastructure
-
-cd hybrid-rag-infrastructure || exit
-python3 -m venv venv
-# shellcheck disable=SC1091
-source venv/bin/activate
-
-pip install torch==2.9.1 torchvision --index-url https://download.pytorch.org/whl/cpu
-pip install -r requirements.txt
-
-echo "GOOGLE_API_KEY=placeholder" > .env
-echo "PINECONE_API_KEY=placeholder" >> .env
-echo "PINECONE_INDEX_NAME=placeholder" >> .env
-
-echo "Setup Complete! App is ready to run."
+sudo docker run -d \
+  --name hybrid-rag-app \
+  --restart always \
+  -p 80:8501 \
+  -e PINECONE_API_KEY="$PINECONE_KEY" \
+  -e GOOGLE_API_KEY="$GOOGLE_KEY" \
+  -e PINECONE_INDEX_NAME="$PINECONE_INDEX" \
+  -e LLM_MODEL="$LLM_MODEL" \
+  "$ECR_URL:latest"

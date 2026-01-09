@@ -9,6 +9,7 @@ env/
 # Environment Variables (Security)
 .env
 data/
+*.pem
 
 # IDE Settings
 .vscode/

@@ -3,9 +3,13 @@ venv/
 __pycache__/
 *.pyc
 .env
+*.pem
 .vscode/
 data/
 state.json
 .python-version
 infrastructure/
+terraform.tfstate
+terraform.tfstate.backup
+.terraform/
 .pytest_cache/

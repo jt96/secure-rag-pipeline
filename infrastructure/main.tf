@@ -71,7 +71,6 @@ resource "aws_ssm_parameter" "llm_model" {
   value       = "gemini-2.5-flash"
 
   lifecycle {
-    # Allows hot-swapping models in Console without Terraform drift
     ignore_changes = [value]
   }
 }

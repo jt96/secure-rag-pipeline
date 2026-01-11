@@ -42,7 +42,6 @@ resource "aws_ssm_parameter" "pinecone_api_key" {
   value       = "CHANGE_ME"
 
   lifecycle {
-    # Prevents Terraform from resetting the key after you manually update it
     ignore_changes = [value]
   }
 }

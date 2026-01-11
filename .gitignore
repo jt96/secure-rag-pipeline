@@ -37,3 +37,9 @@ state.json.bak
 infrastructure/.terraform/
 infrastructure/*.tfstate
 infrastructure/*.tfstate.backup
+*.tfvars
+*.tfvars.json
+crash.log
+*.plan
+*.tfstate
+*.tfstate.*

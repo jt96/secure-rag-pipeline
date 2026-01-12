@@ -39,6 +39,7 @@ state.json.bak
 *.tfstate.backup
 *.tfvars
 *.tfvars.json
+.terraform.tfstate.lock.info
 crash.log
 crash.log.*
 *.plan

@@ -1,7 +1,7 @@
 resource "aws_security_group" "rag_sg" {
   name        = "rag-app-sg"
   description = "Allow SSH, HTTP and Streamlit traffic"
-  vpc_id      = aws_vpc.rag_vpc.id
+  vpc_id      = local.vpc_id
 
   ingress {
     description = "SSH from anywhere"

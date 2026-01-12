@@ -34,12 +34,15 @@ state.json.bak
 .pytest_cache/
 
 # Terraform
-infrastructure/.terraform/
-infrastructure/*.tfstate
-infrastructure/*.tfstate.backup
+.terraform/
+*.tfstate
+*.tfstate.backup
 *.tfvars
 *.tfvars.json
 crash.log
+crash.log.*
 *.plan
-*.tfstate
-*.tfstate.*
+.terraformrc
+terraform.rc
+*_override.tf
+*_override.tf.json

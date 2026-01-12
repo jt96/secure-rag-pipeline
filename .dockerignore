@@ -13,3 +13,14 @@ terraform.tfstate
 terraform.tfstate.backup
 .terraform/
 .pytest_cache/
+pip-log.txt
+
+# Windows System Files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Testing and Linter Caches
+.coverage
+htmlcov/
+.mypy_cache/

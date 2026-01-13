@@ -21,7 +21,15 @@ Usage:
 """
 
 import streamlit as st
+import logging
 from src.rag import get_rag_chain, setup_env
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+logger = logging.getLogger("HybridRAG-App")
 
 def setup_chat():
     """
@@ -36,11 +44,14 @@ def setup_chat():
     if "chain" not in st.session_state:
         with st.spinner("Loading RAG Pipeline..."):
             try:
+                logger.info("Attempting to initialize RAG environment...")
                 setup_env()
                 st.session_state.chain = get_rag_chain()
                 st.success("System ready.")
+                logger.info("RAG Pipeline loaded successfully. System Ready.")
             except Exception as e:
                 st.error(f"Failed to load RAG chain: {e}")
+                logger.critical(f"CRITICAL ERROR: RAG Chain failed to load: {e}")
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -54,6 +65,7 @@ def setup_chat():
         if prompt.lower() in ["exit", "quit", "q"]:
             st.session_state.messages = []
             st.warning("Session Reset. Type a new question or refresh the page to start over.")
+            logger.info("User requested session reset.")
             st.stop()
                 
         # Render User Message
@@ -61,6 +73,9 @@ def setup_chat():
             st.markdown(prompt)
             
         st.session_state.messages.append({"role": "user", "content": prompt})
+        
+        # Log the incoming query for CloudWatch
+        logger.info(f"Processing User Query: '{prompt}'")
         
         # Generate AI Response
         with st.chat_message("assistant"):
@@ -80,6 +95,8 @@ def setup_chat():
                 sources = response["context"]
                 
                 message_placeholder.markdown(answer)
+                
+                logger.info("Response generated successfully.")
                 
                 # Only show source citations if the user asks a substantive question.
                 # Hiding sources for "Hi/Thanks" keeps the interface clean.
@@ -111,6 +128,7 @@ def setup_chat():
                 st.session_state.messages.append({"role": "assistant", "content": answer})
             except Exception as e:
                 message_placeholder.error(f"Error {e}")
+                logger.error(f"Error during RAG execution: {e}", exc_info=True)
 
 def main():
     setup_chat()

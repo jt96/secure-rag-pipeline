@@ -24,6 +24,8 @@ WORKDIR /app
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
+ENV PYTHONUNBUFFERED=1
+
 COPY . .
 
 # Add src to PYTHONPATH

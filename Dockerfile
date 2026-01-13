@@ -31,9 +31,6 @@ COPY . .
 # Add src to PYTHONPATH
 ENV PYTHONPATH="${PYTHONPATH}:/app/src"
 
-# Forcing new update.
-ENV FORCE_UPDATE=v1
-
 EXPOSE 8501
 
 RUN chmod +x start.sh

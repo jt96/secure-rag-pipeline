@@ -19,7 +19,7 @@ Usage:
     # OR via Docker
     docker compose run --service-ports hybrid-rag-app
 """
-
+# FORCE UPDATE: Logging Fix v1
 import streamlit as st
 import logging
 from src.rag import get_rag_chain, setup_env

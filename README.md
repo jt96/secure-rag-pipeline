@@ -113,20 +113,26 @@ This project uses a **Containerized Workflow**. I do not edit code on the server
 ### Phase 2: Provision Infrastructure
 
 **1. Deploy Layer 1 (Foundation)**
-Creates the VPC and ECR Repo. (Run this once).
+Creates the VPC, ECR Repo, and Parameter Store placeholders.
 ```bash
 cd infrastructure/layer1-foundation
 terraform apply
 ```
 
-**2. Deploy Layer 2 (Application)**
-Launches the server. The `user_data` script will automatically pull your Docker image and start the app.
+**2. Configure Secrets (AWS Systems Manager)**
+Layer 1 creates placeholder secrets. You must update them with your real API keys before launching the app.
+* Go to **AWS Console > Systems Manager > Parameter Store**.
+* Find the parameters (e.g., `/hybrid-rag/GOOGLE_API_KEY`).
+* Edit each one and paste your actual API Key as the **Value**.
+
+**3. Deploy Layer 2 (Application)**
+Launches the server. The `user_data` script will automatically pull your Docker image and the secrets you just saved.
 ```bash
 cd ../layer2-app
 terraform apply
 ```
 
-**3. Access the App**
+**4. Access the App**
 * Get the IP from the Terraform output: `instance_public_ip`.
 * Visit: `http://<PUBLIC_IP>:8501`.
 

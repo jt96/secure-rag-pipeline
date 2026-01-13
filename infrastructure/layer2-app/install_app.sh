@@ -38,6 +38,10 @@ sudo docker run -d \
   --name hybrid-rag-app \
   --restart always \
   -p 80:8501 \
+  --log-driver=awslogs \
+  --log-opt awslogs-region="$REGION" \
+  --log-opt awslogs-group="hybrid-rag-logs" \
+  --log-opt awslogs-create-group=true \
   -e PINECONE_API_KEY="$PINECONE_KEY" \
   -e GOOGLE_API_KEY="$GOOGLE_KEY" \
   -e PINECONE_INDEX_NAME="$PINECONE_INDEX" \

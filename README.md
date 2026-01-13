@@ -28,22 +28,36 @@ The infrastructure uses a **Decoupled Layer Strategy** to separate long-term net
 
 ## Project Structure
 ```text
-hybrid-rag/
+hybrid-rag-infrastructure/
 ├── infrastructure/             # Decoupled IaC Configuration
 │   ├── layer1-foundation/      # The "Permanent" Layer
-│   │   ├── main.tf             # VPC, Subnets, ECR, IAM
-│   │   └── outputs.tf          # Exports VPC_ID, Subnet_ID, etc.
+│   │   ├── ecr.tf              # Container Registry
+│   │   ├── iam.tf              # Roles & Policies
+│   │   ├── outputs.tf          # Exports VPC_ID, Subnet_ID, etc.
+│   │   ├── providers.tf        # AWS Provider Config
+│   │   ├── ssm.tf              # Parameter Store
+│   │   └── vpc.tf              # Network (VPC, Subnets, IGW)
 │   └── layer2-app/             # The "Disposable" Layer
-│       ├── main.tf             # EC2 Instance & Security Groups
-│       └── install_app.sh      # Boot script (Docker Pull & Run)
+│       ├── data.tf             # Data source lookups
+│       ├── install_app.sh      # Boot script (Docker Pull & Run)
+│       ├── main.tf             # EC2 Instance resource
+│       ├── providers.tf        # AWS Provider Config
+│       └── security.tf         # Security Groups (Firewall)
 ├── src/                        # Application Source Code
+│   ├── __init__.py
 │   ├── app.py                  # Streamlit Interface w/ Logging
 │   ├── ingest.py               # PDF Processing Engine
-│   └── rag.py                  # RAG Logic
+│   ├── rag.py                  # RAG Logic
+│   └── state_manager.py        # Session State Handling
 ├── tests/                      # Unit Test Suite
-├── .github/workflows/          # CI/CD Pipelines
+│   ├── test_ingest.py
+│   ├── test_rag.py
+│   └── test_state_manager.py
 ├── Dockerfile                  # Optimized Multi-Stage Build
-└── docker-compose.yml          # Local Development Orchestration
+├── docker-compose.yml          # Local Development Orchestration
+├── requirements.txt            # Python Dependencies
+├── run_app.bat                 # Windows Quick Start
+└── start.sh                    # Container Entrypoint
 ```
 
 ## Quick Start (Local)
